@@ -1,12 +1,22 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="02c82bdec29692a63de67e75336c221088ceada4" content="02c82bdec29692a63de67e75336c221088ceada4" />
-  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <!-- Adcash Library -->
+  <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
+
+  <!-- Adcash Autotag -->
+  <script type="text/javascript">
+    aclib.runAutoTag({
+      zoneId: '8gzxbnqly',
+    });
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#101827">
   <title>StreamBox — Video</title>
+
   <style>
     :root { color-scheme: dark; --bg:#0b1220; --panel:#121d30; --muted:#9aa9bd; --accent:#5b8cff; --line:#26364f; }
     * { box-sizing:border-box; }
@@ -45,9 +55,11 @@
     footer { max-width:1120px; margin:auto; padding:0 22px 28px; color:#72839b; font-size:12px; }
     @media(max-width:820px) { .layout { grid-template-columns:1fr; } .side-card { order:2; } main { margin-top:25px; } }
   </style>
-  <!-- Google IMA SDK: used to play VAST/VMAP ad tags in the HTML5 player. -->
+
+  <!-- Google IMA SDK -->
   <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
 </head>
+
 <body>
 <header>
   <div class="nav">
@@ -66,11 +78,12 @@
     <section class="player-card">
       <div class="stage" id="stage">
         <video id="contentVideo" playsinline controls preload="metadata" poster="">
-          <!-- Replace this with your own video URL (MP4 recommended). -->
           <source src="" type="video/mp4">
           Your browser does not support HTML5 video.
         </video>
+
         <div id="adContainer"></div>
+
         <div class="empty" id="emptyState">
           <div>
             <div class="play-icon">▶</div>
@@ -79,10 +92,15 @@
           </div>
         </div>
       </div>
-      <div class="status" id="status" role="status">Ready. Configure your video URL and HilltopAds VAST tag first.</div>
+
+      <div class="status" id="status" role="status">
+        Ready. Configure your video URL and HilltopAds VAST tag first.
+      </div>
+
       <div class="details">
         <h2>Featured video</h2>
         <p>Pre-roll ads may play before the content video. Ad availability depends on your network, targeting, and visitor traffic.</p>
+
         <div class="actions">
           <button id="startButton" type="button">▶ Play video</button>
           <button id="retryButton" class="secondary" type="button">Retry ad / video</button>
@@ -93,12 +111,14 @@
     <aside class="side-card">
       <h3>About this player</h3>
       <p>This single HTML page uses the Google IMA SDK to request and display a VAST-compatible video ad, then plays your content video.</p>
+
       <ul>
         <li>Responsive on phones and computers</li>
         <li>Pre-roll VAST ad support</li>
         <li>Content video controls</li>
         <li>Ad failure fallback to the video</li>
       </ul>
+
       <div class="notice">
         <strong>Important:</strong> This is a player template, not an ad account. Paste the exact VAST tag URL supplied in your HilltopAds dashboard. Do not paste a Direct Link here.
       </div>
@@ -112,13 +132,13 @@
 
 <script>
 /* =========================================================
-   CONFIGURATION — EDIT THESE TWO VALUES
-   1) CONTENT_VIDEO_URL: direct URL to your own MP4 video.
-   2) VAST_TAG_URL: the VAST tag URL supplied by HilltopAds.
-   Leave VAST_TAG_URL blank to test the content video without ads.
+   CONFIGURATION
+   1. CONTENT_VIDEO_URL: Direct URL to your MP4 video.
+   2. VAST_TAG_URL: HilltopAds VAST tag URL.
    ========================================================= */
-const CONTENT_VIDEO_URL = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"; // Example: https://your-domain.com/videos/sample.mp4
-const VAST_TAG_URL = "";      // Paste your HilltopAds VAST tag URL here
+
+const CONTENT_VIDEO_URL = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4";
+const VAST_TAG_URL = "";
 
 const video = document.getElementById("contentVideo");
 const adContainer = document.getElementById("adContainer");
@@ -134,7 +154,9 @@ let adsManager = null;
 let adsRequested = false;
 let imaReady = false;
 
-function setStatus(message) { statusEl.textContent = message; }
+function setStatus(message) {
+  statusEl.textContent = message;
+}
 
 function configureVideo() {
   if (CONTENT_VIDEO_URL.trim()) {
@@ -154,18 +176,26 @@ function playContent() {
     emptyState.style.display = "grid";
     return;
   }
+
   adContainer.style.display = "none";
   video.style.display = "block";
-  video.play().then(() => setStatus("Playing content video.")).catch(() => {
+
+  video.play().then(() => {
+    setStatus("Playing content video.");
+  }).catch(() => {
     setStatus("Press Play video to start playback.");
   });
 }
 
 function onAdError(error) {
-  try { if (adsManager) adsManager.destroy(); } catch (_) {}
+  try {
+    if (adsManager) adsManager.destroy();
+  } catch (_) {}
+
   adsManager = null;
   adContainer.innerHTML = "";
   adContainer.style.display = "none";
+
   setStatus("Ad unavailable or failed. Starting your video instead.");
   playContent();
 }
@@ -175,6 +205,7 @@ function initIMA() {
     setStatus("The ad player SDK could not load. Check your internet connection; you can still play the content video.");
     return false;
   }
+
   if (imaReady) return true;
 
   adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, video);
@@ -185,6 +216,7 @@ function initIMA() {
     onAdsManagerLoaded,
     false
   );
+
   adsLoader.addEventListener(
     google.ima.AdErrorEvent.Type.AD_ERROR,
     onAdError,
@@ -192,7 +224,9 @@ function initIMA() {
   );
 
   video.addEventListener("ended", () => {
-    try { if (adsLoader) adsLoader.contentComplete(); } catch (_) {}
+    try {
+      if (adsLoader) adsLoader.contentComplete();
+    } catch (_) {}
   });
 
   imaReady = true;
@@ -205,31 +239,42 @@ function requestAds() {
     playContent();
     return;
   }
+
   if (!initIMA()) {
     playContent();
     return;
   }
+
   if (adsRequested) {
-    try { if (adsManager) adsManager.destroy(); } catch (_) {}
+    try {
+      if (adsManager) adsManager.destroy();
+    } catch (_) {}
+
     adsManager = null;
   }
+
   adsRequested = true;
   adContainer.innerHTML = "";
   adContainer.style.display = "block";
   video.style.display = "block";
 
   try {
-    adDisplayContainer.initialize(); // Must be called after a user gesture.
+    adDisplayContainer.initialize();
+
     const request = new google.ima.AdsRequest();
+
     request.adTagUrl = VAST_TAG_URL.trim();
     request.linearAdSlotWidth = stage.clientWidth;
     request.linearAdSlotHeight = stage.clientHeight;
     request.nonLinearAdSlotWidth = stage.clientWidth;
     request.nonLinearAdSlotHeight = Math.round(stage.clientHeight / 3);
+
     request.setAdWillAutoPlay(true);
     request.setAdWillPlayMuted(false);
+
     adsLoader.requestAds(request);
     setStatus("Requesting video advertisement…");
+
   } catch (error) {
     onAdError(error);
   }
@@ -238,25 +283,48 @@ function requestAds() {
 function onAdsManagerLoaded(event) {
   try {
     const settings = new google.ima.AdsRenderingSettings();
+
     settings.restoreCustomPlaybackStateOnAdBreakComplete = true;
+
     adsManager = event.getAdsManager(video, settings);
 
-    adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
-    adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, () => {
-      video.pause();
-      setStatus("Advertisement is playing…");
-    });
-    adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, () => {
-      adContainer.style.display = "none";
-      playContent();
-    });
-    adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, () => {
-      adContainer.style.display = "none";
-      playContent();
-    });
+    adsManager.addEventListener(
+      google.ima.AdErrorEvent.Type.AD_ERROR,
+      onAdError
+    );
 
-    adsManager.init(stage.clientWidth, stage.clientHeight, google.ima.ViewMode.NORMAL);
+    adsManager.addEventListener(
+      google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
+      () => {
+        video.pause();
+        setStatus("Advertisement is playing…");
+      }
+    );
+
+    adsManager.addEventListener(
+      google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
+      () => {
+        adContainer.style.display = "none";
+        playContent();
+      }
+    );
+
+    adsManager.addEventListener(
+      google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
+      () => {
+        adContainer.style.display = "none";
+        playContent();
+      }
+    );
+
+    adsManager.init(
+      stage.clientWidth,
+      stage.clientHeight,
+      google.ima.ViewMode.NORMAL
+    );
+
     adsManager.start();
+
   } catch (error) {
     onAdError(error);
   }
@@ -268,23 +336,38 @@ startButton.addEventListener("click", () => {
     emptyState.style.display = "grid";
     return;
   }
-  if (VAST_TAG_URL.trim()) requestAds();
-  else playContent();
+
+  if (VAST_TAG_URL.trim()) {
+    requestAds();
+  } else {
+    playContent();
+  }
 });
 
 retryButton.addEventListener("click", () => {
   adsRequested = false;
-  if (VAST_TAG_URL.trim()) requestAds();
-  else playContent();
+
+  if (VAST_TAG_URL.trim()) {
+    requestAds();
+  } else {
+    playContent();
+  }
 });
 
 window.addEventListener("resize", () => {
   try {
-    if (adsManager) adsManager.resize(stage.clientWidth, stage.clientHeight, google.ima.ViewMode.NORMAL);
+    if (adsManager) {
+      adsManager.resize(
+        stage.clientWidth,
+        stage.clientHeight,
+        google.ima.ViewMode.NORMAL
+      );
+    }
   } catch (_) {}
 });
 
 configureVideo();
 </script>
+
 </body>
 </html>
